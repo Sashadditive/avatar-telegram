@@ -1,0 +1,51 @@
+import requests
+import time
+
+def create_avatar_video(text, yandex_tts_api, did_api_key, avatar_image_url):
+    """
+    Генерирует видео с аватаром: текст → TTS → D-ID → видео
+    """
+    # 1. Озвучка через Yandex
+    audio_file = "temp_news.mp3"
+    from .tts import text_to_speech
+    text_to_speech(text, audio_file, api_key=yandex_tts_api)
+
+    # 2. Загрузка аудио на временный хостинг
+    with open(audio_file, 'rb') as f:
+        upload_resp = requests.post('https://file.io', files={'file': f})
+    audio_url = upload_resp.json()['link']
+
+    # 3. Создание видео через D-ID
+    talk_url = "https://api.d-id.com/talks"
+    headers = {
+        "Authorization": did_api_key,
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "source_url": avatar_image_url,
+        "script": {
+            "type": "audio",
+            "audio_url": audio_url
+        },
+        "config": {
+            "fluent": True,
+            "pad_audio": 0.0
+        }
+    }
+
+    response = requests.post(talk_url, json=payload, headers=headers)
+    if response.status_code != 201:
+        raise Exception(f"D-ID request failed: {response.text}")
+
+    talk_id = response.json()['id']
+
+    # 4. Ожидание готовности видео
+    while True:
+        status = requests.get(f"{talk_url}/{talk_id}", headers=headers)
+        data = status.json()
+        if data.get('status') == 'done':
+            return data['result_url']
+        elif data.get('status') == 'error':
+            raise Exception(f"D-ID error: {data}")
+        time.sleep(5)
