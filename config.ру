@@ -1,0 +1,15 @@
+# Токен от @BotFather
+TELEGRAM_TOKEN = "123456:ABC-DEF654xyz"  # ← замени на свой
+
+# Ключ для YandexGPT (берётся из Yandex Cloud)
+YANDEX_GPT_API_KEY = "ваш_апи_ключ_от_yandex_cloud"  # https://cloud.yandex.ru/docs/iam/concepts/authorization/api-key
+
+# Каталог ID (нужен для YandexGPT)
+# Найти: https://console.cloud.yandex.ru → Селектор сверху → "Каталоги" → скопируй ID
+FOLDER_ID = "ваш_folder_id"
+
+# Ключ для D-ID (в формате "Basic base64:ваш-ключ")
+DID_API_KEY = "Basic ваш_base64_ключ"
+
+# Прямая ссылка на фото аватара (например, загрузи на imgur.com)
+AVATAR_IMAGE_URL = "https://ваша-ссылка-на-фото.jpg"
