@@ -1,0 +1,40 @@
+import requests
+
+def generate_news_yandex(topic, api_key, folder_id):
+    """
+    Генерирует новость через YandexGPT
+    """
+    url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
+    headers = {
+        "Authorization": f"Api-Key {api_key}",
+        "Content-Type": "application/json"
+    }
+    prompt = f"Напиши короткую, живую новость на 3–4 предложения на тему: {topic}. Без заголовка. На русском языке."
+
+    data = {
+        "modelUri": f"gpt://{folder_id}/yandexgpt-lite",
+        "completionOptions": {
+            "temperature": 0.7,
+            "maxTokens": "500"
+        },
+        "messages": [
+            {
+                "role": "system",
+                "text": "Ты — опытный журналист. Пиши краткие, информативные и живые новости на русском языке."
+            },
+            {
+                "role": "user",
+                "text": prompt
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 200:
+            result = response.json()
+            return result['result']['alternatives'][0]['message']['text'].strip()
+        else:
+            raise Exception(f"YandexGPT error {response.status_code}: {response.text}")
+    except Exception as e:
+        raise Exception(f"Ошибка при генерации текста: {str(e)}")
